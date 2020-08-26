@@ -87,18 +87,36 @@ const Home = (props) => (
 );
 
 export async function getStaticProps(context) {
-  const parser = new Parser();
-  const data = await parser.parseURL('https://flaviocopes.com/index.xml');
-  const posts = [];
-  data.items.slice(0, 10).forEach((item) => {
-    console.log(item.link);
-    posts.push({
-      title: item.title,
-      link: item.link,
-      date: item.isoDate,
-      name: 'Flavio Copes',
+  const Airtable = require('airtable');
+  const base = new Airtable({ apiKey: process.env.APIKEY }).base('appsUwvXxOvBuCCz0');
+  const records = await base('Table 1').select({ view: 'Grid view' }).firstPage();
+  const feeds = records
+    .filter((record) => {
+      if (record.get('approved') === true) return true;
+    })
+    .map((record) => {
+      return {
+        id: record.id,
+        name: record.get('name'),
+        blogUrl: record.get('blogUrl'),
+        feedUrl: record.get('feedUrl'),
+      };
     });
-  });
+
+  const posts = [];
+  const parser = new Parser();
+  for (const feed of feeds) {
+    const data = await parser.parseURL(feed.feedUrl);
+    data.items.slice(0, 10).forEach((item) => {
+      console.log(item.link);
+      posts.push({
+        title: item.title,
+        link: item.link,
+        date: item.isoDate,
+        name: feed.name,
+      });
+    });
+  }
 
   return {
     props: {
