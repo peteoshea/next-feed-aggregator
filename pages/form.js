@@ -1,7 +1,40 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import Router from 'next/router';
+import { useState } from 'react';
 
 const Form = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [blogUrl, setBlogUrl] = useState('');
+  const [feedUrl, setFeedUrl] = useState('');
+  const [notes, setNotes] = useState('');
+  const [response, setResponse] = useState('');
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setResponse('');
+
+    try {
+      const res = await fetch('/api/feed', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, blogUrl, feedUrl, notes }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const json = await res.json();
+      console.log(json);
+      if (json.success) {
+        alert('Thank you for submitting your blog!');
+        Router.push('/');
+      } else {
+        setResponse(json.message);
+      }
+    } catch (error) {
+      setResponse('An error occured while submitting the form');
+    }
+  };
+
   return (
     <div>
       <Head>
@@ -29,12 +62,17 @@ const Form = () => {
         </header>
 
         <main>
-          <p className="text-center pb-5"></p>
+          <p className="text-center pb-5">{response}</p>
 
           <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div>
               <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
-                <form className="mt-5 md:mt-0 md:col-span-2" action="" method="POST">
+                <form
+                  className="mt-5 md:mt-0 md:col-span-2"
+                  action=""
+                  method="POST"
+                  onSubmit={handleSubmit}
+                >
                   <div className="shadow sm:rounded-md sm:overflow-hidden">
                     <div className="px-4 py-5 bg-white sm:p-6">
                       <label className="block text-sm font-medium leading-5 text-gray-700">
@@ -43,6 +81,8 @@ const Form = () => {
                       <input
                         required
                         className="mb-5 mt-1 form-input block w-full py-2 px-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
                       />
                       <label className="block text-sm font-medium leading-5 text-gray-700">
                         Email address
@@ -51,6 +91,8 @@ const Form = () => {
                         required
                         type="email"
                         className="mb-5 mt-1 form-input block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
                       />
                       <label className="block text-sm font-medium leading-5 text-gray-700">
                         Blog URL
@@ -60,6 +102,8 @@ const Form = () => {
                         required
                         className="mb-5 mt-1 form-input block w-full py-2 px-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                         placeholder="https://www.example.com"
+                        value={blogUrl}
+                        onChange={(event) => setBlogUrl(event.target.value)}
                       />
                       <label className="block text-sm font-medium leading-5 text-gray-700">
                         RSS Feed URL
@@ -69,6 +113,8 @@ const Form = () => {
                         required
                         className="mb-5 mt-1 form-input block w-full py-2 px-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                         placeholder="https://www.example.com/feed"
+                        value={feedUrl}
+                        onChange={(event) => setFeedUrl(event.target.value)}
                       />
 
                       <label
@@ -82,6 +128,8 @@ const Form = () => {
                           rows="3"
                           className="form-textarea mt-1 block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5"
                           placeholder="Anything you want to tell us!"
+                          value={notes}
+                          onChange={(event) => setNotes(event.target.value)}
                         ></textarea>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
