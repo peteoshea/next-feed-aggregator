@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import Parser from 'rss-parser';
 
 const Home = (props) => (
@@ -17,6 +18,13 @@ const Home = (props) => (
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between">
             <h1 className="text-3xl font-bold leading-tight text-gray-900">Latest posts</h1>
+            <p>
+              <Link href="/form">
+                <p className="underline cursor-pointer mt-2">
+                  <a>Add a new blog</a>
+                </p>
+              </Link>
+            </p>
           </div>
         </div>
       </header>
